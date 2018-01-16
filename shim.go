@@ -12,16 +12,21 @@ const (
 	contentType = "Content-Type"
 )
 
+// Handler is an interface for accepting and responding to API Gateway integration requests in Lambda
+type Handler interface {
+	Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
+}
+
+// Shim provides a thin layer between your traditional http.Handler based web app and AWS Lambda + API Gateway.
+type Shim struct {
+	Handler http.Handler
+}
+
 // New returns an initialized Shim
-func New(h http.Handler) *Shim {
+func New(h http.Handler) Handler {
 	return &Shim{
 		Handler: h,
 	}
-}
-
-// Shim provides
-type Shim struct {
-	Handler http.Handler
 }
 
 // Handle converts an APIGatewayProxyRequest into a http.Request, creates a new ResponseWriter,
