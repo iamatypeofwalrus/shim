@@ -34,11 +34,10 @@ func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest
 		strings.NewReader(request.Body),
 	)
 
-	req = req.WithContext(ctx)
-
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
+	req = req.WithContext(ctx)
 
 	rw := &ResponseWriter{
 		Headers: make(http.Header),
