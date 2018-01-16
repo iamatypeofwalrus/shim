@@ -24,8 +24,8 @@ type Shim struct {
 	Handler http.Handler
 }
 
-// Handle converts an APIGatewayProxyRequest in an http.Request, creates a new ResponseWriter,
-// and passes it to its http.Handler
+// Handle converts an APIGatewayProxyRequest into a http.Request, creates a new ResponseWriter,
+// and passes them to its http.Handler
 func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	// TODO: verify that the path here is the raw path with query and path parameters
 	req, err := http.NewRequest(
