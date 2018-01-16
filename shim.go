@@ -40,7 +40,9 @@ func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest
 		return events.APIGatewayProxyResponse{}, err
 	}
 
-	rw := &ResponseWriter{}
+	rw := &ResponseWriter{
+		Headers: make(http.Header),
+	}
 	s.Handler.ServeHTTP(rw, req)
 
 	headers := FormatHeaders(rw.Headers)
