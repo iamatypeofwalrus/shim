@@ -8,22 +8,22 @@ Bring your own router.
 package main
 
 import (
-  "net/http"
+	"fmt"
+	"net/http"
 
-  "github.com/aws/aws-lambda-go/events"
-  "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambda"
 
-  "github.com/gorilla/mux"
-  "github.com/iamatypeofwalrus/shim"
+	"github.com/gorilla/mux"
+	"github.com/iamatypeofwalrus/shim"
 )
 
 func main() {
-  r := mux.NewRouter()
-  r.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
-    fmt.Fprint(w, "hello, world")
-  })
+	r := mux.NewRouter()
+	r.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		fmt.Fprint(w, "hello, world")
+	})
 
-  shim := shim.New(r)
-  lambda.Start(shim.Handle)
+	shim := shim.New(r)
+	lambda.Start(shim.Handle)
 }
 ```
