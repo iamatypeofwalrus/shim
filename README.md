@@ -1,6 +1,8 @@
-# Lambda Routing Shim
+# Shim
 
-Lambda Routing Shim provides a thin layer between the Lambda API Gateway integrations and the standard library `http.Handler` interface. Bring your own router.
+Shim is a thin layer between the Lambda API Gateway integrations and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications.
+
+Bring your own router.
 
 ```go
 import (
@@ -9,7 +11,8 @@ import (
   "github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 
-	"github.com/gorilla/mux"
+  "github.com/gorilla/mux"
+  "github.com/iamatypeofwalrus/shim"
 )
 
 package main
