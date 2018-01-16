@@ -5,17 +5,17 @@ Bring your own router.
 
 ## Usage
 ```go
+package main
+
 import (
-  "http"
+  "net/http"
 
   "github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
+  "github.com/aws/aws-lambda-go/lambda"
 
   "github.com/gorilla/mux"
   "github.com/iamatypeofwalrus/shim"
 )
-
-package main
 
 func main() {
   r := mux.NewRouter()
