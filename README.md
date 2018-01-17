@@ -1,7 +1,5 @@
 # Shim
-Shim is a thin layer between the Lambda API Gateway integrations and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications.
-
-Bring your own router.
+Shim is a thin layer between API Gateway integration requests via Lambda and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications. Bring your own router!
 
 ## Usage
 ### Cloudformation
@@ -44,12 +42,17 @@ import (
 )
 
 func main() {
+  // Create a router as normal. Any router that satisfies the http.Handler interface
+  // is accepted!
   mux := http.NewServeMux()
   mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
     fmt.Fprint(w, "hello, world")
   })
 
+  // Pass your mux to shim
   shim := shim.New(mux)
+  
+  // Let Lambda handle the rest!
   lambda.Start(shim.Handle)
 }
 ```
