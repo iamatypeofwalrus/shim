@@ -3,6 +3,7 @@ package shim
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -47,10 +48,23 @@ func SetDebugLogger(l Log) func(*Shim) {
 // and passes them to its http.Handler
 func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	s.Printf("event request: %+v\n", request)
-	// TODO: verify that the path here is the raw path with query and path parameters
+
+	u := url.URL{}
+	u.Path = request.Path
+
+	// Query parameters may or may not present, but if they are pull them out
+	// and encode them into the URL
+	if len(request.QueryStringParameters) > 0 {
+		queryParams := url.Values{}
+		for k, v := range request.QueryStringParameters {
+			queryParams.Add(k, v)
+		}
+		u.RawQuery = queryParams.Encode()
+	}
+
 	req, err := http.NewRequest(
 		request.HTTPMethod,
-		request.Path,
+		u.String(),
 		strings.NewReader(request.Body),
 	)
 
