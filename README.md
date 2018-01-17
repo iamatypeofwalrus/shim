@@ -13,43 +13,43 @@ You'll want to use the [proxy pass integration])(https://docs.aws.amazon.com/api
 # Note: You need both the Root AND the Greedy event in order to capture all
 #       events sent to your web app.
 YourFunction:
-	Type: AWS::Serverless::Function
-	Properties:
-		Handler: main
-		Runtime: go1.x
-		Role: ...
-		Events:
-			ProxyApiRoot:
-				Type: Api
-				Properties:
-					Path: /
-					Method: ANY
-			ProxyApiGreedy:
-				Type: Api
-				Properties:
-					Path: /{proxy+}
-					Method: ANY
+  Type: AWS::Serverless::Function
+  Properties:
+    Handler: main
+    Runtime: go1.x
+    Role: ...
+    Events:
+      ProxyApiRoot:
+        Type: Api
+        Properties:
+          Path: /
+          Method: ANY
+      ProxyApiGreedy:
+        Type: Api
+        Properties:
+          Path: /{proxy+}
+          Method: ANY
 ```
 ### Go Code
 ```go
 package main
 
 import (
-	"fmt"
-	"net/http"
+  "fmt"
+  "net/http"
 
-	"github.com/aws/aws-lambda-go/lambda"
+  "github.com/aws/aws-lambda-go/lambda"
 
-	"github.com/iamatypeofwalrus/shim"
+  "github.com/iamatypeofwalrus/shim"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprint(w, "hello, world")
-	})
+  mux := http.NewServeMux()
+  mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprint(w, "hello, world")
+  })
 
-	shim := shim.New(mux)
-	lambda.Start(shim.Handle)
+  shim := shim.New(mux)
+  lambda.Start(shim.Handle)
 }
 ```
