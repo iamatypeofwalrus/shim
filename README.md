@@ -8,27 +8,27 @@ Bring your own router.
 You'll want to use the [proxy pass integration])(https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure you application receives every request.
 
 ```yaml
-	# Here we're using the SAM specification to define our function
-	#
-	# Note: You need both the Root AND the Greedy event in order to capture all
-	#       events sent to your web app.
-  YourFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: main
-      Runtime: go1.x
-      Role: ...
-      Events:
-        ProxyApiRoot:
-          Type: Api
-          Properties:
-            Path: /
-            Method: ANY
-        ProxyApiGreedy:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-						Method: ANY
+# Here we're using the SAM specification to define our function
+#
+# Note: You need both the Root AND the Greedy event in order to capture all
+#       events sent to your web app.
+YourFunction:
+	Type: AWS::Serverless::Function
+	Properties:
+		Handler: main
+		Runtime: go1.x
+		Role: ...
+		Events:
+			ProxyApiRoot:
+				Type: Api
+				Properties:
+					Path: /
+					Method: ANY
+			ProxyApiGreedy:
+				Type: Api
+				Properties:
+					Path: /{proxy+}
+					Method: ANY
 ```
 ### Go Code
 ```go
