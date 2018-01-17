@@ -5,7 +5,7 @@ Bring your own router.
 
 ## Usage
 ### Cloudformation
-You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure you application receives every request.
+You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure your application receives every request sent to API Gateway.
 
 ```
 # Here we're using the SAM specification to define our function
