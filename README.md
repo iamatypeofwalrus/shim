@@ -55,8 +55,8 @@ func main() {
 ```
 
 #### With Debugging Logger
-You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. It accepts any logger that provides
-the `Println` and `Printf` functions a lá the standard library logger.
+You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. [It accepts any logger that provides
+the `Println` and `Printf`](https://github.com/iamatypeofwalrus/shim/blob/56bb8c10bbb8e36d964551ceace772f675141ec8/log.go#L5) functions a lá the standard library logger.
 
 ```go
 func main() {
