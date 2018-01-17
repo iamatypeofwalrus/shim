@@ -7,7 +7,7 @@ Bring your own router.
 ### Cloudformation
 You'll want to use the [proxy pass integration])(https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure you application receives every request.
 
-```yaml
+```
 # Here we're using the SAM specification to define our function
 #
 # Note: You need both the Root AND the Greedy event in order to capture all
