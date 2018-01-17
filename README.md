@@ -53,3 +53,21 @@ func main() {
   lambda.Start(shim.Handle)
 }
 ```
+
+#### With Debugging Logger
+You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. It accepts any logger that provides
+the `Println` and `Printf` functions a lá the standard library logger.
+
+```go
+func main() {
+  ...
+
+  l := log.New(os.Stdout, "", log.LstdFlags)
+  shim := shim.New(
+    mux,
+    shim.SetDebugLogger(l)
+  )
+  lambda.Start(shim.Handle)
+}
+```
+```
