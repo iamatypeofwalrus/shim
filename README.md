@@ -70,4 +70,3 @@ func main() {
   lambda.Start(shim.Handle)
 }
 ```
-```
