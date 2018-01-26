@@ -51,11 +51,8 @@ func main() {
     fmt.Fprint(w, "hello, world")
   })
 
-  // Pass your router to shim
-  shim := shim.New(mux)
-  
-  // Let Lambda handle the rest!
-  lambda.Start(shim.Handle)
+  // Pass your router to shim and let Lambda handle the rest
+  lambda.Start(shim.New(mux).Handle)
 }
 ```
 
