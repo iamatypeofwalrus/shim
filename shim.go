@@ -11,12 +11,12 @@ const (
 	contentType = "Content-Type"
 )
 
-// Handler is an interface for accepting and responding to API Gateway integration requests in Lambda
+// Handler is an interface for accepting and responding to API Gateway integration requests
 type Handler interface {
 	Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
 }
 
-// Shim provides a thin layer between your traditional http.Handler based web app and AWS Lambda + API Gateway.
+// Shim provides a thin layer between your traditional http.Handler based application and AWS Lambda + API Gateway.
 type Shim struct {
 	Handler http.Handler
 	Log     Log
@@ -35,15 +35,16 @@ func New(h http.Handler, options ...func(*Shim)) Handler {
 	return s
 }
 
-// SetDebugLogger is an option function to set the debug logger on a Shim
+// SetDebugLogger is an option function to set the debug logger on a Shim. The debug logger gives insight into the event received from
+// APIGateway and how shim transforms the request and response.
 func SetDebugLogger(l Log) func(*Shim) {
 	return func(s *Shim) {
 		s.Log = l
 	}
 }
 
-// Handle converts an APIGatewayProxyRequest into a http.Request, creates a new ResponseWriter,
-// and passes them to its http.Handler
+// Handle converts an APIGatewayProxyRequest converts an APIGatewayProxyRequest into an http.Request and passes it to the given http.Handler
+// along with a ResponseWriter. The response from the handler is converted into an APIGatewayProxyResponse.
 func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	s.printf("event request: %+v\n", request)
 
