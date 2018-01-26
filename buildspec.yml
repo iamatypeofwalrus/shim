@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - ln -s "${CODEBUILD_SRC_DIR}" "/go/src/github.com/iamatypeofwalrus/shim"
+  pre_build:
+    commands:
+      - cd "/go/src/github.com/iamatypeofwalrus/shim"
+      - go tool vet .
+      - go test .
+  build:
+    commands:
+      - go build
