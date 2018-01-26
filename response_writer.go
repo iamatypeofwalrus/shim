@@ -5,16 +5,15 @@ import (
 	"net/http"
 )
 
-// NewResponseWriter returns an ResponseWriter with the headers
-// properly initialized
+// NewResponseWriter returns an ResponseWriter with the headers properly initialized
 func NewResponseWriter() *ResponseWriter {
 	return &ResponseWriter{
 		Headers: make(http.Header),
 	}
 }
 
-// ResponseWriter adheres to the http.ResponseWriter interface and provides
-// additional methods for integrating with Lambda
+// ResponseWriter adheres to the http.ResponseWriter interface and makes the HTTP Status Code, Headers, and Body publicly
+// accessible
 type ResponseWriter struct {
 	Code    int
 	Headers http.Header
