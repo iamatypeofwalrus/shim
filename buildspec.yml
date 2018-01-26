@@ -2,6 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
+      - mkdir -p /go/src/github.com/iamatypeofwalrus
       - ln -s "${CODEBUILD_SRC_DIR}" "/go/src/github.com/iamatypeofwalrus/shim"
   pre_build:
     commands:
