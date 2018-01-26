@@ -1,3 +1,5 @@
+[![GoDoc](https://godoc.org/github.com/iamatypeofwalrus/shim?status.svg)](https://godoc.org/github.com/iamatypeofwalrus/shim)
+
 # Shim
 Shim is a thin layer between API Gateway integration requests via Lambda and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications. Bring your own router!
 
