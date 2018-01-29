@@ -81,7 +81,7 @@ import (
 )
 
 func main() {
-  // Shim works with the http.DefaultServeMux. Create routes and handlers against the router normal.
+  // Shim works with the http.DefaultServeMux. Create routes and handlers against the router as normal.
   http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
     fmt.Fprint(w, "hello, world")
   })
