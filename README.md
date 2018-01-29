@@ -11,6 +11,12 @@ Shim uses [`dep`](https://golang.github.io/dep/) to manage its dependencies. You
 dep ensure -add github.com/iamatypeofwalrus/shim
 ```
 
+The codebase is semantically versioned so feel free to update to pull the latest version with:
+
+```sh
+dep ensure -update github.com/iamatypeofwalrus/shim
+```
+
 ## Usage
 ### CloudFormation
 You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure your application receives every request sent to your API Gateway endpoint.
