@@ -5,8 +5,8 @@
 Shim is a thin layer between API Gateway integration requests via Lambda and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications. Bring your own router!
 
 ## Usage
-### Cloudformation
-You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure your application receives every request sent to API Gateway endpoint.
+### CloudFormation
+You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure your application receives every request sent to your API Gateway endpoint.
 
 ```
 # Here we're using the SAM specification to define our function
@@ -32,6 +32,7 @@ YourFunction:
           Method: ANY
 ```
 ### Go Code
+#### With your own router
 ```go
 package main
 
@@ -52,8 +53,36 @@ func main() {
     fmt.Fprint(w, "hello, world")
   })
 
+  s := shim.New(mux)
+
   // Pass your router to shim and let Lambda handle the rest
-  lambda.Start(shim.New(mux).Handle)
+  lambda.Start(s.Handle)
+}
+```
+
+#### With the default router
+```go
+package main
+
+import (
+  "fmt"
+  "net/http"
+
+  "github.com/aws/aws-lambda-go/lambda"
+
+  "github.com/iamatypeofwalrus/shim"
+)
+
+func main() {
+  // Shim works with the http.DefaultServeMux. Create routes and handlers against the router normal.
+  http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprint(w, "hello, world")
+  })
+
+  // Simply pass nil to shim to use the http.DefaultServeMux
+  s := shim.New(nil)
+
+  lambda.Start(s.Handle)
 }
 ```
 
@@ -67,9 +96,10 @@ func main() {
 
   l := log.New(os.Stdout, "", log.LstdFlags)
   shim := shim.New(
-    mux,
+    nil, // or your mux
     shim.SetDebugLogger(l)
   )
+
   lambda.Start(shim.Handle)
 }
 ```
