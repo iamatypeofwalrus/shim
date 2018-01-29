@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/aws/aws-lambda-go"
   packages = ["events"]
-  revision = "28a6e9fa1fc02d45d9a8c0a8d22c7d5c3580aa03"
-  version = "v1.0.0"
+  revision = "6e2e37798efbb1dfd8e9c6681702e683a6046517"
+  version = "v1.0.1"
 
 [solve-meta]
   analyzer-name = "dep"
