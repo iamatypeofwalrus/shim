@@ -11,7 +11,7 @@ Shim uses [`dep`](https://golang.github.io/dep/) to manage its dependencies. You
 dep ensure -add github.com/iamatypeofwalrus/shim
 ```
 
-The codebase is semantically versioned so feel free to update to pull the latest version with:
+The codebase is semantically versioned so feel free to pull the latest version with:
 
 ```sh
 dep ensure -update github.com/iamatypeofwalrus/shim
