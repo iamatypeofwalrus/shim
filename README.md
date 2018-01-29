@@ -1,4 +1,4 @@
-![AWS CodeBuild Status](https://s3-us-west-2.amazonaws.com/codefactory-us-west-2-prod-default-build-badges/passing.svg)
+![Build Status](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoibkxJRnI0U3VBaTBEWnRpQlBLOGNMOE1Lb2dTSzlUTDVJRHJTcHdmOTk1ZFVKSGVwbzFjdm5ybG9WZTZFUWtpaFdoSnh0RVNROW9aTVFhZzVIb1BOVHpNPSIsIml2UGFyYW1ldGVyU3BlYyI6Ikk2VFlCMEh3M3kzRDJuQnQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![GoDoc](https://godoc.org/github.com/iamatypeofwalrus/shim?status.svg)](https://godoc.org/github.com/iamatypeofwalrus/shim)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iamatypeofwalrus/shim)](https://goreportcard.com/report/github.com/iamatypeofwalrus/shim)
 
