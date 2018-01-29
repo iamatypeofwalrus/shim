@@ -17,34 +17,13 @@ The codebase is semantically versioned so feel free to update to pull the latest
 dep ensure -update github.com/iamatypeofwalrus/shim
 ```
 
-## Usage
-### CloudFormation
+## Example
+For an extensive example on how to `shim` fits in with other AWS serverless like Sam Local and CloudFormation [checkout the wiki](https://github.com/iamatypeofwalrus/shim/wiki/Example:-AWS-Sam-Local)
+
+### Note: API Gateway
 You'll want to use the [proxy pass integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) with API Gateway to make sure your application receives every request sent to your API Gateway endpoint.
 
-```
-# Here we're using the SAM specification to define our function
-#
-# Note: You need both the Root AND the Greedy event in order to capture all
-#       events sent to your web app.
-YourFunction:
-  Type: AWS::Serverless::Function
-  Properties:
-    Handler: main
-    Runtime: go1.x
-    Role: ...
-    Events:
-      ProxyApiRoot:
-        Type: Api
-        Properties:
-          Path: /
-          Method: ANY
-      ProxyApiGreedy:
-        Type: Api
-        Properties:
-          Path: /{proxy+}
-          Method: ANY
-```
-
+### Code
 ```go
 package main
 
