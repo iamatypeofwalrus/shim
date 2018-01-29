@@ -18,7 +18,7 @@ dep ensure -update github.com/iamatypeofwalrus/shim
 ```
 
 ## Example
-For an extensive example on how `shim` fits in with other AWS serverless tooling like [SAM Local](https://github.com/awslabs/aws-sam-local) and the [Serverless Application Model (SAM) specification](https://github.com/awslabs/serverless-application-model) [checkout the wiki](https://github.com/iamatypeofwalrus/shim/wiki/Example:-AWS-Sam-Local)
+For an extensive example on how `shim` fits in with other AWS serverless tooling like [SAM Local](https://github.com/awslabs/aws-sam-local) and the [Serverless Application Model (SAM) specification](https://github.com/awslabs/serverless-application-model) head over to the [this example in the wiki](https://github.com/iamatypeofwalrus/shim/wiki/Example:-AWS-Sam-Local)
 
 ### Note: API Gateway
 Make sure that [proxy pass integration in API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) is enabled to make sure your application receives every request sent to your API Gateway endpoint.
