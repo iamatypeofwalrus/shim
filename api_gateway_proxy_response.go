@@ -1,6 +1,8 @@
 package shim
 
 import (
+	"encoding/base64"
+	"mime"
 	"net/http"
 	"strings"
 
@@ -8,24 +10,42 @@ import (
 )
 
 const (
+	contentType            = "Content-Type"
 	multipleValueSeperator = ","
+	prefixText             = "text/"
+)
+
+var (
+	// textFormats contains Content-Types that we know to be text, but do not fall under the text/* category
+	textFormats = []string{
+		"application/json",
+		"application/xml",
+		"application/javascript",
+	}
 )
 
 // NewAPIGatewayProxyResponse converts a shim.ResponseWriter into an events.APIGatewayProxyResponse
 func NewAPIGatewayProxyResponse(rw *ResponseWriter) events.APIGatewayProxyResponse {
+	resp := events.APIGatewayProxyResponse{
+		StatusCode: rw.Code,
+	}
+
 	headers := formatHeaders(rw.Headers)
 	setDefaultContentType(headers, rw.Body.Bytes())
+	resp.Headers = headers
 
-	// TODO: if body type is not mime type convert body to base64
-
-	return events.APIGatewayProxyResponse{
-		StatusCode: rw.Code,
-		Body:       rw.Body.String(),
-		Headers:    headers,
+	if shouldConvertToBase64(resp.Headers[contentType]) {
+		resp.Body = base64.StdEncoding.EncodeToString(rw.Body.Bytes())
+		resp.IsBase64Encoded = true
+	} else {
+		resp.Body = string(rw.Body.String())
 	}
+
+	return resp
 }
 
-// formatHeaders converts an http.Headers map into a map[string]string which is expected by Lambda.
+// formatHeaders converts an http.Headers map into a map[string]string. If there are multiple values for a key
+// in the http.Headers they are combined together with "," per RFC 2616
 func formatHeaders(h http.Header) map[string]string {
 	headers := make(map[string]string)
 
@@ -51,4 +71,25 @@ func setDefaultContentType(lambdaHeaders map[string]string, body []byte) {
 	if _, ok := lambdaHeaders[contentType]; !ok {
 		lambdaHeaders[contentType] = http.DetectContentType(body)
 	}
+}
+
+func shouldConvertToBase64(ct string) bool {
+	mimeType, _, err := mime.ParseMediaType(ct)
+	if err != nil {
+		return true
+	}
+
+	// Anything prefixed with text/ should not be converted to base64
+	if strings.HasPrefix(mimeType, prefixText) {
+		return false
+	}
+
+	// Range through special cases held in textFormats
+	for _, t := range textFormats {
+		if t == mimeType {
+			return false
+		}
+	}
+
+	return true
 }

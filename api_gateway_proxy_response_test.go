@@ -1,6 +1,7 @@
 package shim
 
 import (
+	"encoding/base64"
 	"net/http"
 	"sort"
 	"strings"
@@ -47,6 +48,62 @@ func TestFormatHeadersHandlesMultipleValusForAKey(t *testing.T) {
 	for i, encoding := range encodings {
 		if encodingVals[i] != encoding {
 			t.Errorf("expected encoding at %v to be %v but was %v\n", i, encoding, encodingVals[i])
+		}
+	}
+}
+
+func TestNewAPIGatewayProxyResponseConvertsNonTextResponsesToBase64(t *testing.T) {
+	body := "hello, world"
+	rw := NewResponseWriter()
+	rw.Write([]byte(body))
+	rw.Headers.Set(contentType, "application/octet-stream")
+	resp := NewAPIGatewayProxyResponse(rw)
+
+	if !resp.IsBase64Encoded {
+		t.Fatal("expected IsBase64Encoded to be true but was false")
+	}
+
+	decodedBody, err := base64.StdEncoding.DecodeString(resp.Body)
+	if err != nil {
+		t.Fatal("expected error from base64 decode to be nil but was", err)
+	}
+
+	if string(decodedBody) != body {
+		t.Errorf("expected decodedBody to be %v but was %v", body, string(decodedBody))
+	}
+}
+
+func TestNewAPIGatewayProxyResponseDoesNotConvertTextResponsesToBase64(t *testing.T) {
+	body := "hello, world"
+	rw := NewResponseWriter()
+	rw.Write([]byte(body))
+	resp := NewAPIGatewayProxyResponse(rw)
+
+	if resp.IsBase64Encoded {
+		t.Error("expected response not be base64 encoded")
+	}
+
+	if resp.Body != body {
+		t.Errorf("expected body to be %v but was %v", body, resp.Body)
+	}
+}
+
+func TestShouldConvertToBase64(t *testing.T) {
+	cases := []struct {
+		in  string
+		out bool
+	}{
+		{in: "//", out: true},
+		{in: "text/plain", out: false},
+		{in: "application/protobuf", out: true},
+		{in: "application/json", out: false},
+		{in: "application/json; charset=utf-8", out: false},
+	}
+
+	for _, c := range cases {
+		out := shouldConvertToBase64(c.in)
+		if out != c.out {
+			t.Errorf("for %v expected %v but was %v", c.in, c.out, out)
 		}
 	}
 }

@@ -7,10 +7,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-const (
-	contentType = "Content-Type"
-)
-
 // Handler is an interface for accepting and responding to API Gateway integration requests
 type Handler interface {
 	Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
