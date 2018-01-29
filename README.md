@@ -44,8 +44,7 @@ YourFunction:
           Path: /{proxy+}
           Method: ANY
 ```
-### Go Code
-#### With your own router
+
 ```go
 package main
 
@@ -73,33 +72,7 @@ func main() {
 }
 ```
 
-#### With the default router
-```go
-package main
-
-import (
-  "fmt"
-  "net/http"
-
-  "github.com/aws/aws-lambda-go/lambda"
-
-  "github.com/iamatypeofwalrus/shim"
-)
-
-func main() {
-  // Shim works with the http.DefaultServeMux. Create routes and handlers against the router as normal.
-  http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-    fmt.Fprint(w, "hello, world")
-  })
-
-  // Simply pass nil to shim to use the http.DefaultServeMux
-  s := shim.New(nil)
-
-  lambda.Start(s.Handle)
-}
-```
-
-#### With Debugging Logger
+### With Debugging Logger
 You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. [It accepts any logger that provides
 the `Println` and `Printf`](https://github.com/iamatypeofwalrus/shim/blob/56bb8c10bbb8e36d964551ceace772f675141ec8/log.go#L5) functions a lá the standard library logger.
 
@@ -113,6 +86,6 @@ func main() {
     shim.SetDebugLogger(l)
   )
 
-  lambda.Start(shim.Handle)
+  ...
 }
 ```
