@@ -1,5 +1,5 @@
-[![GoDoc](https://godoc.org/github.com/iamatypeofwalrus/shim?status.svg)](https://godoc.org/github.com/iamatypeofwalrus/shim)
 ![AWS CodeBuild Status](https://s3-us-west-2.amazonaws.com/codefactory-us-west-2-prod-default-build-badges/passing.svg)
+[![GoDoc](https://godoc.org/github.com/iamatypeofwalrus/shim?status.svg)](https://godoc.org/github.com/iamatypeofwalrus/shim)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iamatypeofwalrus/shim)](https://goreportcard.com/report/github.com/iamatypeofwalrus/shim)
 
 # Shim
