@@ -1,13 +1,15 @@
-package shim
+package shim_test
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/iamatypeofwalrus/shim"
 )
 
 const (
@@ -57,9 +59,7 @@ func TestShim(t *testing.T) {
 			test.HandlerFunc,
 		)
 
-		s := &Shim{
-			Handler: mux,
-		}
+		s := shim.New(mux)
 
 		requestEvent := events.APIGatewayProxyRequest{
 			HTTPMethod: test.Method,
@@ -106,7 +106,7 @@ func TestQueryParams(t *testing.T) {
 		receivedQueryParams = req.URL.Query()
 		fmt.Fprint(w, "yup")
 	})
-	s := New(mux)
+	s := shim.New(mux)
 
 	// The magic!
 	resp, err := s.Handle(context.Background(), request)
@@ -131,5 +131,49 @@ func TestQueryParams(t *testing.T) {
 
 	if queryVal[0] != value {
 		t.Errorf("expected query string value to be %v but was %v\n", value, queryVal[0])
+	}
+}
+
+func TestBase64(t *testing.T) {
+	respBody := "Goodbye, world"
+	respContentType := "application/joe"
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		w.Write([]byte(respBody))
+		w.Header().Set("content-type", respContentType)
+	})
+
+	s := shim.New(mux)
+
+	body := "hello, world"
+	event := events.APIGatewayProxyRequest{
+		Path:            "/",
+		HTTPMethod:      http.MethodPost,
+		IsBase64Encoded: true,
+		Body:            base64.StdEncoding.EncodeToString([]byte(body)),
+	}
+
+	resp, err := s.Handle(context.TODO(), event)
+	if err != nil {
+		t.Fatal("exepcted error from Handle to be nil but was", err)
+	}
+
+	if resp.Headers["Content-Type"] != respContentType {
+		t.Fatalf("expected Content-Type header to be %v but was %v", respContentType, resp.Headers["Content-Type"])
+	}
+
+	if !resp.IsBase64Encoded {
+		t.Fatal("expected IsBase64Encoded to be true but was false")
+	}
+
+	decodedBody, err := base64.StdEncoding.DecodeString(resp.Body)
+	if err != nil {
+		t.Fatal("expected error from decoding base64 string to be nil but was", err)
+	}
+
+	if string(decodedBody) != respBody {
+		t.Error("expected decodedBody and respBody to be the same")
+		t.Logf("respBody: %v", respBody)
+		t.Logf("decodedBody: %v", decodedBody)
 	}
 }
