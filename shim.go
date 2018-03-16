@@ -18,7 +18,7 @@ type Shim struct {
 	Log     Log
 }
 
-// New returns an initialized Shim with the provided http.Handler. If not http.Handler is provided New will use http.DefaultServiceMux
+// New returns an initialized Shim with the provided http.Handler. If no http.Handler is provided New will use http.DefaultServiceMux
 func New(h http.Handler, options ...func(*Shim)) Handler {
 	if h == nil {
 		h = http.DefaultServeMux
