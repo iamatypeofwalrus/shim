@@ -9,7 +9,7 @@ phases:
   pre_build:
     commands:
       - cd "/go/src/github.com/iamatypeofwalrus/shim"
-      - go tool vet .
+      - go vet .
       - go test .
   build:
     commands:
