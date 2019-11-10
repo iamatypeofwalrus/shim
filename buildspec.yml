@@ -1,6 +1,8 @@
 version: 0.2
 phases:
   install:
+    runtime-versions:
+      golang: 1.13
     commands:
       - mkdir -p /go/src/github.com/iamatypeofwalrus
       - ln -s "${CODEBUILD_SRC_DIR}" "/go/src/github.com/iamatypeofwalrus/shim"
