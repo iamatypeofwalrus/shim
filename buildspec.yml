@@ -10,7 +10,7 @@ phases:
     commands:
       - cd "/go/src/github.com/iamatypeofwalrus/shim"
       - go vet .
-      - go test .
+      - go test ./...
   build:
     commands:
-      - go build
+      - go build ./...
