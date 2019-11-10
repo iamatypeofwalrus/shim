@@ -5,17 +5,7 @@
 # Shim
 Shim is a thin layer between API Gateway integration requests via Lambda and the standard library `http.Handler` interface. It allows you to write plain ol' Go and run it on Lambda with minimal modifications. Bring your own router!
 
-Shim uses [`dep`](https://golang.github.io/dep/) to manage its dependencies. You can add `shim` to your dep project by running:
-
-```sh
-dep ensure -add github.com/iamatypeofwalrus/shim
-```
-
-The codebase is semantically versioned so feel free to pull the latest version with:
-
-```sh
-dep ensure -update github.com/iamatypeofwalrus/shim
-```
+Shim uses [Go modules](https://github.com/golang/go/wiki/Modules) to model its dependencies.
 
 ## Example
 For an extensive example on how `shim` fits in with other AWS serverless tooling like [SAM Local](https://github.com/awslabs/aws-sam-local) and the [Serverless Application Model (SAM) specification](https://github.com/awslabs/serverless-application-model) head over to the [this example in the wiki](https://github.com/iamatypeofwalrus/shim/wiki/Example:-AWS-Sam-Local)
