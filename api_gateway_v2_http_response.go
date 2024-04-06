@@ -2,7 +2,6 @@ package shim
 
 import (
 	"encoding/base64"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -13,7 +12,7 @@ func NewApiGatewayV2HttpResponse(rw *ResponseWriter) events.APIGatewayV2HTTPResp
 	}
 
 	headers := rw.Headers
-	headers[httpHeaderContentType] = []string{http.DetectContentType(rw.Body.Bytes())}
+	setContentTypeIfNotPresent(headers, rw.Body.Bytes())
 
 	resp.MultiValueHeaders = headers
 
