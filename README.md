@@ -14,6 +14,7 @@ For an extensive example on how `shim` fits in with other AWS serverless tooling
 Make sure that [proxy pass integration in API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html) is enabled to make sure your application receives every request sent to your API Gateway endpoint.
 
 ### Code
+#### With Rest API (API Gateway Proxy Request, Response)
 ```go
 package main
 
@@ -34,7 +35,35 @@ func main() {
     fmt.Fprint(w, "hello, world")
   })
 
-  s := shim.New(mux)
+  s := shim.HandleRestApiRequests(mux)
+
+  // Pass your router to shim and let Lambda handle the rest
+  lambda.Start(s.Handle)
+}
+```
+
+#### With HTTP API (API Gateway V2 Request, Response)
+```go
+package main
+
+import (
+  "fmt"
+  "net/http"
+
+  "github.com/aws/aws-lambda-go/lambda"
+
+  "github.com/iamatypeofwalrus/shim"
+)
+
+func main() {
+  // Create a router as normal. Any router that satisfies the http.Handler interface
+  // is accepted!
+  mux := http.NewServeMux()
+  mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+    fmt.Fprint(w, "hello, world")
+  })
+
+  s := shim.HandleHttpApiRequests(mux)
 
   // Pass your router to shim and let Lambda handle the rest
   lambda.Start(s.Handle)
@@ -42,8 +71,7 @@ func main() {
 ```
 
 ### With Debugging Logger
-You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. [It accepts any logger that provides
-the `Println` and `Printf`](https://github.com/iamatypeofwalrus/shim/blob/56bb8c10bbb8e36d964551ceace772f675141ec8/log.go#L5) functions a lá the standard library logger.
+You can pull logs from various steps in the shim by passing the `SetDebugLogger` option. [It accepts any logger that provides `Printf`](https://github.com/iamatypeofwalrus/shim/blob/56bb8c10bbb8e36d964551ceace772f675141ec8/log.go#L5) functions a lá the standard library logger.
 
 ```go
 func main() {
@@ -53,6 +81,22 @@ func main() {
   shim := shim.New(
     nil, // or your mux
     shim.SetDebugLogger(l)
+  )
+
+  ...
+}
+```
+
+There is also a shim for the `slog` package
+
+```go
+func main() {
+  ...
+
+  logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+  shim := shim.New(
+    nil, // or your mux
+    shim.SetDebugWithSlog(l)
   )
 
   ...
