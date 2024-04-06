@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	contentType            = "Content-Type"
+	httpHeaderContentType  = "Content-Type"
 	multipleValueSeperator = ","
 	prefixText             = "text/"
 )
@@ -31,10 +31,10 @@ func NewAPIGatewayProxyResponse(rw *ResponseWriter) events.APIGatewayProxyRespon
 	}
 
 	headers := formatHeaders(rw.Headers)
-	setDefaultContentType(headers, rw.Body.Bytes())
+	headers[httpHeaderContentType] = http.DetectContentType(rw.Body.Bytes())
 	resp.Headers = headers
 
-	if shouldConvertToBase64(resp.Headers[contentType]) {
+	if shouldConvertToBase64(resp.Headers[httpHeaderContentType]) {
 		resp.Body = base64.StdEncoding.EncodeToString(rw.Body.Bytes())
 		resp.IsBase64Encoded = true
 	} else {
@@ -65,12 +65,6 @@ func formatHeaders(h http.Header) map[string]string {
 	}
 
 	return headers
-}
-
-func setDefaultContentType(lambdaHeaders map[string]string, body []byte) {
-	if _, ok := lambdaHeaders[contentType]; !ok {
-		lambdaHeaders[contentType] = http.DetectContentType(body)
-	}
 }
 
 func shouldConvertToBase64(ct string) bool {

@@ -22,7 +22,7 @@ func TestNewHTTPRequestPassesQueryStrings(t *testing.T) {
 		QueryStringParameters: qp,
 	}
 
-	req, err := NewHTTPRequest(context.TODO(), event)
+	req, err := NewHttpRequestFromAPIGatewayProxyRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected error from New HTTPRequest to be nil")
 		t.Logf("err: %s\n", err)
@@ -58,7 +58,7 @@ func TestNewHTTPRequestDecodesBase64Bodies(t *testing.T) {
 		IsBase64Encoded: true,
 	}
 
-	req, err := NewHTTPRequest(context.TODO(), event)
+	req, err := NewHttpRequestFromAPIGatewayProxyRequest(context.TODO(), event)
 	if err != nil {
 		t.Fatal("execpted error from NewHTTPRequest to be nil but was ", err)
 	}
@@ -87,7 +87,7 @@ func TestNewHTTPRequestPassesHeaders(t *testing.T) {
 		},
 	}
 
-	req, err := NewHTTPRequest(context.TODO(), event)
+	req, err := NewHttpRequestFromAPIGatewayProxyRequest(context.TODO(), event)
 	if err != nil {
 		t.Fatal("exepected error from NewHTTPRequest to be nil but was ", err)
 	}
@@ -105,7 +105,7 @@ func TestNewHTTPRequestSetsContentLength(t *testing.T) {
 		Body:       body,
 	}
 
-	req, err := NewHTTPRequest(context.TODO(), event)
+	req, err := NewHttpRequestFromAPIGatewayProxyRequest(context.TODO(), event)
 	if err != nil {
 		t.Fatal("expected error from NewHTTPRequest to be nil but was ", err)
 	}

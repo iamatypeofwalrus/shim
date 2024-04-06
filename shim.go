@@ -2,20 +2,11 @@ package shim
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 )
-
-// todo:
-// 1. allow slog to be sent in as debug logger, logger requires just one function: printf
-// 2. create two new apis one for RestApi and on for HttpApi
-// 3. have og call RestApi
-
-// Handler is an interface for accepting and responding to API Gateway integration requests
-type Handler interface {
-	Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
-}
 
 // Shim provides a thin layer between your traditional http.Handler based application and AWS Lambda + API Gateway.
 type Shim struct {
@@ -24,7 +15,7 @@ type Shim struct {
 }
 
 // New returns an initialized Shim with the provided http.Handler. If no http.Handler is provided New will use http.DefaultServiceMux
-func New(h http.Handler, options ...func(*Shim)) Handler {
+func New(h http.Handler, options ...func(*Shim)) *Shim {
 	if h == nil {
 		h = http.DefaultServeMux
 	}
@@ -48,12 +39,18 @@ func SetDebugLogger(l Log) func(*Shim) {
 	}
 }
 
+func SetDebugWithSlog(l slog.Logger) func(*Shim) {
+	return func(s *Shim) {
+		s.Log = slogAdapter{Logger: l}
+	}
+}
+
 // Handle converts an APIGatewayProxyRequest converts an APIGatewayProxyRequest into an http.Request and passes it to the given http.Handler
 // along with a ResponseWriter. The response from the handler is converted into an APIGatewayProxyResponse.
 func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	s.printf("event request: %+v\n", request)
 
-	httpReq, err := NewHTTPRequest(ctx, request)
+	httpReq, err := NewHttpRequestFromAPIGatewayProxyRequest(ctx, request)
 	if err != nil {
 		s.printf("received an error while constructing http request from API Gateway request event\n")
 		return events.APIGatewayProxyResponse{}, err
@@ -67,6 +64,36 @@ func (s *Shim) Handle(ctx context.Context, request events.APIGatewayProxyRequest
 
 	resp := NewAPIGatewayProxyResponse(rw)
 	s.printf("api gateway proxy response: %+v\n", resp)
+	return resp, nil
+}
+
+// HandleRestApiRequests converts an APIGatewayProxyRequest into an http.Request and passes it to the http.Handler. Http responses are converted
+// into APIGatewayProxyResponse.
+func (s *Shim) HandleRestApiRequests(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	return s.Handle(ctx, request)
+}
+
+// HandleHttpApiRequests converts an APIGatewayV2HTTPRequest into an http.Request and passes it to the http.Handler. Http responses are converted
+// into APIGatewayV2HTTPResponse
+func (s *Shim) HandleHttpApiRequests(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+	s.printf("shim received event request: %+v", request)
+
+	httpReq, err := NewHttpRequestFromAPIGatewayV2HTTPRequest(ctx, request)
+	if err != nil {
+		s.printf("received error while converting APIGatewayV2HTTPRequest into http request: %v\n", err)
+		return events.APIGatewayV2HTTPResponse{}, err
+	}
+
+	s.printf("generated http request: %+v\n", httpReq)
+
+	rw := NewResponseWriter()
+	s.printf("calling ServeHTTP on shim handler\n")
+	s.Handler.ServeHTTP(rw, httpReq)
+	s.printf("received response: %+v\n", rw)
+
+	resp := NewApiGatewayV2HttpResponse(rw)
+	s.printf("api gateway v2 http response: %+v\n", resp)
+
 	return resp, nil
 }
 

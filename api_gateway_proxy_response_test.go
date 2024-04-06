@@ -53,10 +53,15 @@ func TestFormatHeadersHandlesMultipleValusForAKey(t *testing.T) {
 }
 
 func TestNewAPIGatewayProxyResponseConvertsNonTextResponsesToBase64(t *testing.T) {
-	body := "hello, world"
+	input := "hello, world"
+	body, err := gzipString(input)
+	if err != nil {
+		t.Fatalf("unable to gzip string: %v", err)
+	}
+
 	rw := NewResponseWriter()
 	rw.Write([]byte(body))
-	rw.Headers.Set(contentType, "application/octet-stream")
+	rw.Headers.Set(httpHeaderContentType, "application/octet-stream")
 	resp := NewAPIGatewayProxyResponse(rw)
 
 	if !resp.IsBase64Encoded {
@@ -68,8 +73,13 @@ func TestNewAPIGatewayProxyResponseConvertsNonTextResponsesToBase64(t *testing.T
 		t.Fatal("expected error from base64 decode to be nil but was", err)
 	}
 
-	if string(decodedBody) != body {
-		t.Errorf("expected decodedBody to be %v but was %v", body, string(decodedBody))
+	decodedGunzippedInput, err := gunzipBytes(decodedBody)
+	if err != nil {
+		t.Fatal("expected error from gunzip to be nil but was", err)
+	}
+
+	if input != decodedGunzippedInput {
+		t.Errorf("expected decodedBody to be %v but was %v", input, decodedGunzippedInput)
 	}
 }
 

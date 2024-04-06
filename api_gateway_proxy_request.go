@@ -22,8 +22,8 @@ var (
 	errCouldNotCreateHTTPRequest = errors.New("encountered error while create http request")
 )
 
-// NewHTTPRequest creates an *http.Request from a context.Context and an events.APIGatewayProxyRequest
-func NewHTTPRequest(ctx context.Context, event events.APIGatewayProxyRequest) (*http.Request, error) {
+// NewHttpRequestFromAPIGatewayProxyRequest creates an *http.Request from a context.Context and an events.APIGatewayProxyRequest
+func NewHttpRequestFromAPIGatewayProxyRequest(ctx context.Context, event events.APIGatewayProxyRequest) (*http.Request, error) {
 	u, err := url.Parse(event.Path)
 	if err != nil {
 		return nil, errCouldNotParsePath

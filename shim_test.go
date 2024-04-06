@@ -1,4 +1,4 @@
-package shim_test
+package shim
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/iamatypeofwalrus/shim"
 )
 
 const (
@@ -59,7 +58,7 @@ func TestShim(t *testing.T) {
 			test.HandlerFunc,
 		)
 
-		s := shim.New(mux)
+		s := New(mux)
 
 		requestEvent := events.APIGatewayProxyRequest{
 			HTTPMethod: test.Method,
@@ -94,8 +93,8 @@ func TestQueryParams(t *testing.T) {
 	qp[key] = value
 
 	request := events.APIGatewayProxyRequest{
-		HTTPMethod: http.MethodGet,
-		Path:       "/",
+		HTTPMethod:            http.MethodGet,
+		Path:                  "/",
 		QueryStringParameters: qp,
 	}
 
@@ -106,7 +105,7 @@ func TestQueryParams(t *testing.T) {
 		receivedQueryParams = req.URL.Query()
 		fmt.Fprint(w, "yup")
 	})
-	s := shim.New(mux)
+	s := New(mux)
 
 	// The magic!
 	resp, err := s.Handle(context.Background(), request)
@@ -136,14 +135,17 @@ func TestQueryParams(t *testing.T) {
 
 func TestBase64(t *testing.T) {
 	respBody := "Goodbye, world"
-	respContentType := "application/joe"
+	gzippedBody, err := gzipString(respBody)
+	if err != nil {
+		t.Fatalf("unable to gzip string: %v", err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte(respBody))
-		w.Header().Set("content-type", respContentType)
+		w.Write([]byte(gzippedBody))
 	})
 
-	s := shim.New(mux)
+	s := New(mux)
 
 	body := "hello, world"
 	event := events.APIGatewayProxyRequest{
@@ -158,10 +160,6 @@ func TestBase64(t *testing.T) {
 		t.Fatal("exepcted error from Handle to be nil but was", err)
 	}
 
-	if resp.Headers["Content-Type"] != respContentType {
-		t.Fatalf("expected Content-Type header to be %v but was %v", respContentType, resp.Headers["Content-Type"])
-	}
-
 	if !resp.IsBase64Encoded {
 		t.Fatal("expected IsBase64Encoded to be true but was false")
 	}
@@ -171,9 +169,51 @@ func TestBase64(t *testing.T) {
 		t.Fatal("expected error from decoding base64 string to be nil but was", err)
 	}
 
-	if string(decodedBody) != respBody {
+	gunzippedBody, err := gunzipBytes(decodedBody)
+	if err != nil {
+		t.Fatal("expected error from gunzipping string to be nil but was", err)
+	}
+
+	if gunzippedBody != respBody {
 		t.Error("expected decodedBody and respBody to be the same")
 		t.Logf("respBody: %v", respBody)
 		t.Logf("decodedBody: %v", decodedBody)
+	}
+}
+
+func TestHandleHttpApiRequests(t *testing.T) {
+	// Create a sample APIGatewayV2HTTPRequest event with base64 encoded body
+	body := "Hello, World!"
+	event := events.APIGatewayV2HTTPRequest{
+		Version:               "2.0",
+		RouteKey:              "GET /hello",
+		RawPath:               "/hello",
+		RawQueryString:        "name=John&age=30",
+		Headers:               map[string]string{"Content-Type": "application/json"},
+		QueryStringParameters: map[string]string{"name": "John", "age": "30"},
+		Body:                  body,
+		IsBase64Encoded:       false,
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		w.Write([]byte(body))
+	})
+
+	s := New(mux)
+
+	// Call the function under test
+	resp, err := s.HandleHttpApiRequests(context.Background(), event)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify the response
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+	}
+
+	if string(resp.Body) != body {
+		t.Errorf("expected body '%s', got '%s'", body, string(resp.Body))
 	}
 }
