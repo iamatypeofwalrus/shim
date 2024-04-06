@@ -93,7 +93,8 @@ There is also a shim for the `slog` package
 func main() {
   ...
 
-  logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+  // Debug with Slog calls the Debug method on slog. Slog defaults to INFO, so it needs to be set to Debug so you can see the messages
+  logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
   shim := shim.New(
     nil, // or your mux
     shim.SetDebugWithSlog(l)
