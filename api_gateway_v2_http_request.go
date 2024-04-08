@@ -43,8 +43,14 @@ func NewHttpRequestFromAPIGatewayV2HTTPRequest(ctx context.Context, event events
 		return nil, fmt.Errorf("shim could not create http request from event: %w", err)
 	}
 
+	// Xray tracing is passed in via x-amzn-trace-id header that is on the Lambda Event
 	for h, v := range event.Headers {
 		req.Header.Set(h, v)
+	}
+
+	requestID := event.RequestContext.RequestID
+	if requestID != "" {
+		req.Header.Set("x-request-id", requestID)
 	}
 
 	req.URL.Host = req.Header.Get("Host")
