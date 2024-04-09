@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var headerContentType = "Content-Type"
+
 // NewResponseWriter returns an ResponseWriter with the headers properly initialized
 func NewResponseWriter() *ResponseWriter {
 	return &ResponseWriter{
@@ -30,6 +32,11 @@ func (rw *ResponseWriter) Write(b []byte) (int, error) {
 	if rw.Code == 0 {
 		rw.WriteHeader(http.StatusOK)
 	}
+
+	if rw.Header().Get(headerContentType) == "" {
+		rw.Header().Set(headerContentType, http.DetectContentType(b))
+	}
+
 	return rw.Body.Write(b)
 }
 

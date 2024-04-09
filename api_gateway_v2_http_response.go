@@ -2,26 +2,42 @@ package shim
 
 import (
 	"encoding/base64"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/aws/aws-lambda-go/events"
 )
 
 func NewApiGatewayV2HttpResponse(rw *ResponseWriter) events.APIGatewayV2HTTPResponse {
-	resp := events.APIGatewayV2HTTPResponse{
-		StatusCode: rw.Code,
-	}
 
-	headers := rw.Headers
-	setContentTypeIfNotPresent(headers, rw.Body.Bytes())
+	var output string
+	isBase64Encoded := false
 
-	resp.MultiValueHeaders = headers
+	bytes := rw.Body.Bytes()
 
-	if shouldConvertToBase64(rw.Headers.Get(httpHeaderContentType)) {
-		resp.Body = base64.StdEncoding.EncodeToString(rw.Body.Bytes())
-		resp.IsBase64Encoded = true
+	if utf8.Valid(bytes) {
+		output = string(bytes)
 	} else {
-		resp.Body = string(rw.Body.String())
+		output = base64.StdEncoding.EncodeToString(bytes)
+		isBase64Encoded = true
 	}
 
-	return resp
+	headers := make(map[string]string)
+	cookies := make([]string, 0)
+
+	for key, values := range rw.Headers {
+		if key == "Set-Cookie" {
+			cookies = append(cookies, values...)
+		} else {
+			headers[key] = strings.Join(values, ",")
+		}
+	}
+
+	return events.APIGatewayV2HTTPResponse{
+		StatusCode:      rw.Code,
+		Headers:         headers,
+		Cookies:         cookies,
+		IsBase64Encoded: isBase64Encoded,
+		Body:            output,
+	}
 }

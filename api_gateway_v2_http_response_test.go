@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"net/http"
 	"testing"
 )
 
@@ -32,15 +31,15 @@ func TestNewApiGatewayV2HttpResponse_Base64(t *testing.T) {
 	if !resp.IsBase64Encoded {
 		t.Errorf("expected IsBase64Encoded to be true")
 	}
+
+	if resp.Headers[httpHeaderContentType] == "" {
+		t.Errorf("expected Content-Type header to be set")
+	}
 }
 
 func TestNewApiGatewayV2HttpResponse_NoBase64(t *testing.T) {
-	rw := &ResponseWriter{
-		Code:    http.StatusOK,
-		Headers: http.Header{},
-		Body:    *bytes.NewBufferString("Hello, World!"),
-	}
-	rw.Headers.Set(httpHeaderContentType, "text/plain")
+	rw := NewResponseWriter()
+	rw.Write([]byte("hello, world"))
 
 	resp := NewApiGatewayV2HttpResponse(rw)
 
@@ -54,6 +53,10 @@ func TestNewApiGatewayV2HttpResponse_NoBase64(t *testing.T) {
 
 	if resp.IsBase64Encoded {
 		t.Errorf("expected IsBase64Encoded to be false")
+	}
+
+	if resp.Headers[httpHeaderContentType] == "" {
+		t.Errorf("expected Content-Type header to be set")
 	}
 }
 
